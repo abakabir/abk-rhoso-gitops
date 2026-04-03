@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openstack-operator
+  namespace: openshift-gitops
+  annotations:
+    # On utilise -10 car les opérateurs doivent être là AVANT la config (03-config)
+    # Mais ils arrivent APRÈS les prérequis (qui sont à -40)
+    argocd.argoproj.io/sync-wave: "-10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/abakabir/abk-rhoso-gitops.git
+    targetRevision: HEAD
+    path: 02-operators
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true      # Supprime les ressources si tu les enlèves du Git
+      selfHeal: true   # Répare si quelqu'un modifie manuellement le cluster
