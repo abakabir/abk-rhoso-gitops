@@ -1,0 +1,103 @@
+---
+# 01-prerequisites/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - nmstate-operator
+  - metallb-operator
+  - namespace-openstack.yaml
+
+# On defini intelligence ordonnancement
+patches: 
+  # --- ETAPE 01 : INFRASTRUCTURE DE BASE ---
+  # Priorite maximale : Creation des Namespaces
+  - target:
+      kind: Namespace
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "-30"
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1managed-by
+        value: "openshift-gitops"
+  
+  # Preparation des groupes d operateurs
+  - target:
+      kind: OperatorGroup
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "-20"
+  
+  # Installation des operateurs (Subscriptions)
+  - target:
+      kind: Subscription
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "-10"
+  
+  # --- ETAPE 02 : CONFIGURATION DES SERVICES (CRs) ---
+  # On active le SkipDryRun car les CRDs ne sont pas encore prêtes au premier check
+  - target:
+      kind: (LVMCluster|ArgoCD|NMState|MetalLB|OpenStack|NetConfig|OpenStackControlPlane|VaultConnection|VaultAuth|VaultStaticSecret)
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-options
+        value: "SkipDryRunOnMissingResource=true"
+  
+  # --- ETAPE 03 : ORDONNANCEMENT DU RESEAU ET DU CONTROL PLANE ---
+  # 1. Config reseau physique des nœuds
+  - target:
+      group: nmstate.io
+      kind: NodeNetworkConfigurationPolicy
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "1"
+  
+  # 2. Definition des attachements reseau (NAD)
+  - target:
+      group: k8s.cni.cncf.io
+      kind: NetworkAttachmentDefinition
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "2"
+  
+  # 3. Pool d IPs MetalLB
+  - target:
+      group: metallb.io
+      kind: IPAddressPool
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "3"
+  
+  # 4. Exposition L2 MetalLB
+  - target:
+      group: metallb.io
+      kind: L2Advertisement
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "4"
+  
+  # 5. Configuration reseau globale OpenStack
+  - target:
+      group: network.openstack.org
+      kind: NetConfig
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "5"
+  
+  # 6. DEPLOIEMENT FINAL : Le Control Plane
+  - target:
+      group: core.openstack.org
+      kind: OpenStackControlPlane
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "10"
+
