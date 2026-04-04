@@ -1,0 +1,64 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../base/controlplane
+
+patches:
+  - path: ../../../shared/orchestration-patches.yaml
+
+  # --- PATCHES ENVIRONNEMENT ---
+  # Worker 1
+  - target:
+      group: nmstate.io
+      version: v1
+      kind: NodeNetworkConfigurationPolicy
+      name: osp-multi-nic-worker-ocp4-worker1
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: "control-plane-cluster-my-guid-1"
+      - op: replace
+        path: /spec/nodeSelector/kubernetes.io~1hostname
+        value: "control-plane-cluster-my-guid-1"
+      - op: replace
+        path: /spec/desiredState/interfaces/3/ipv4/address/0/ip
+        value: "1{rhoso_external_ip_worker_1}"
+
+  # Worker 2
+  - target:
+      group: nmstate.io
+      version: v1
+      kind: NodeNetworkConfigurationPolicy
+      name: osp-multi-nic-worker-ocp4-worker2
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: "control-plane-cluster-my-guid-2"
+      - op: replace
+        path: /spec/nodeSelector/kubernetes.io~1hostname
+        value: "control-plane-cluster-my-guid-2"
+      - op: replace
+        path: /spec/desiredState/interfaces/3/ipv4/address/0/ip
+        value: "{rhoso_external_ip_worker_2}"
+
+  # NetConfig (DNS)
+  - target:
+      kind: NetConfig
+      name: openstacknetconfig
+    patch: |-
+      - op: replace
+        path: /spec/networks/0/dnsDomain
+        value: ctlplane.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+      - op: replace
+        path: /spec/networks/1/dnsDomain
+        value: internalapi.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+      - op: replace
+        path: /spec/networks/2/dnsDomain
+        value: tenant.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+      - op: replace
+        path: /spec/networks/3/dnsDomain
+        value: storage.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+      - op: replace
+        path: /spec/networks/4/dnsDomain
+        value: external.sandbox-my-guid-ocp4-cluster.svc.cluster.local
