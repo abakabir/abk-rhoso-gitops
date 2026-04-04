@@ -7,6 +7,6 @@ resources:
   - metallb-operator
   - namespace-openstack.yaml
 
-# On defini intelligence ordonnancement
-patches: 
-  - path: ../shared/orchestration-patches.yaml
+# On "active" les annotations via le composant
+components:
+  - ../shared/annotations

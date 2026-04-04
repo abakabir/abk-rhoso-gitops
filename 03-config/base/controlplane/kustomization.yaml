@@ -8,7 +8,7 @@ resources:
   - openstack-net-attach-def.yaml
   - openstack_netconfig.yaml
   - openstack-nncp.yaml
-# On defini intelligence ordonnancement
-patches:
-  - path: ../../../shared/orchestration-patches.yaml
+# On "active" les annotations via le composant
+components:
+  - ../../../shared/annotations
 
