@@ -5,7 +5,7 @@ resources:
   - ../../../base/controlplane
 
 patches:
-  - path: ../../../shared/orchestration-patches.yaml
+  - path: ../../../../shared/orchestration-patches.yaml
 
   # --- PATCHES ENVIRONNEMENT ---
   # Worker 1
