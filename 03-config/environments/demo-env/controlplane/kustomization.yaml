@@ -4,9 +4,11 @@ kind: Kustomization
 resources:
   - ../../../base/controlplane
 
-patches:
-  - path: ../../../../shared/orchestration-patches.yaml
+# On "active" les annotations via le composant
+components:
+  - ../../../../shared/annotations
 
+patches:
   # --- PATCHES ENVIRONNEMENT ---
   # Worker 1
   - target:
