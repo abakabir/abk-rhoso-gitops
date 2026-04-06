@@ -4,10 +4,6 @@ kind: Kustomization
 resources:
   - ../../../base/controlplane
 
-# On "active" les annotations via le composant
-components:
-  - ../../../../shared/annotations
-
 patches:
   # --- PATCHES ENVIRONNEMENT ---
   # Worker 1
@@ -19,13 +15,13 @@ patches:
     patch: |-
       - op: replace
         path: /metadata/name
-        value: "control-plane-cluster-my-guid-1"
+        value: "control-plane-cluster-7l9kv-1"
       - op: replace
         path: /spec/nodeSelector/kubernetes.io~1hostname
-        value: "control-plane-cluster-my-guid-1"
+        value: "control-plane-cluster-7l9kv-1"
       - op: replace
         path: /spec/desiredState/interfaces/3/ipv4/address/0/ip
-        value: "1{rhoso_external_ip_worker_1}"
+        value: "192.168.12.224"
 
   # Worker 2
   - target:
@@ -36,13 +32,30 @@ patches:
     patch: |-
       - op: replace
         path: /metadata/name
-        value: "control-plane-cluster-my-guid-2"
+        value: "control-plane-cluster-7l9kv-2"
       - op: replace
         path: /spec/nodeSelector/kubernetes.io~1hostname
-        value: "control-plane-cluster-my-guid-2"
+        value: "control-plane-cluster-7l9kv-2"
       - op: replace
         path: /spec/desiredState/interfaces/3/ipv4/address/0/ip
-        value: "{rhoso_external_ip_worker_2}"
+        value: "192.168.12.225"
+
+  # Worker 3
+  - target:
+      group: nmstate.io
+      version: v1
+      kind: NodeNetworkConfigurationPolicy
+      name: osp-multi-nic-worker-ocp4-worker3
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: "control-plane-cluster-7l9kv-3"
+      - op: replace
+        path: /spec/nodeSelector/kubernetes.io~1hostname
+        value: "control-plane-cluster-7l9kv-3"
+      - op: replace
+        path: /spec/desiredState/interfaces/3/ipv4/address/0/ip
+        value: "192.168.12.226"
 
   # NetConfig (DNS)
   - target:
@@ -51,16 +64,16 @@ patches:
     patch: |-
       - op: replace
         path: /spec/networks/0/dnsDomain
-        value: ctlplane.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+        value: ctlplane.sandbox-7l9kv-ocp4-cluster.svc.cluster.local
       - op: replace
         path: /spec/networks/1/dnsDomain
-        value: internalapi.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+        value: internalapi.sandbox-7l9kv-ocp4-cluster.svc.cluster.local
       - op: replace
         path: /spec/networks/2/dnsDomain
-        value: tenant.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+        value: tenant.sandbox-7l9kv-ocp4-cluster.svc.cluster.local
       - op: replace
         path: /spec/networks/3/dnsDomain
-        value: storage.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+        value: storage.sandbox-7l9kv-ocp4-cluster.svc.cluster.local
       - op: replace
         path: /spec/networks/4/dnsDomain
-        value: external.sandbox-my-guid-ocp4-cluster.svc.cluster.local
+        value: external.sandbox-7l9kv-ocp4-cluster.svc.cluster.local

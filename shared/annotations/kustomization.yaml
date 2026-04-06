@@ -94,3 +94,18 @@ patches:
         path: /metadata/annotations/argocd.argoproj.io~1sync-wave
         value: "10"
 
+  # 7. DEPLOIEMENT DATAPLANE
+  - target:
+      kind: OpenStackDataPlaneNodeSet
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "20" # Après le Control Plane (wave 10)
+  
+  - target:
+      kind: OpenStackDataPlaneDeployment
+    patch: |-
+      - op: add
+        path: /metadata/annotations/argocd.argoproj.io~1sync-wave
+        value: "30" # En tout dernier pour lancer l'exécution
+

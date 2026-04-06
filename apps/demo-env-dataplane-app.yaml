@@ -1,0 +1,26 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: environment-rhoso-demo-env-dataplane
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/abakabir/abk-rhoso-gitops.git
+    targetRevision: HEAD
+    path: 03-config/environments/demo-env/dataplane/
+  destination:
+    server: https://kubernetes.default.svc
+    # La Data Plane est déployé dans le namespace 'openstack'
+    namespace: openstack
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # Option vitale pour permettre à Kustomize de gérer les CRDs non encore présentes
+      - SkipDryRunOnMissingResource=true
