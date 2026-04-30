@@ -5,7 +5,7 @@ metadata:
   namespace: openstack
 spec:
   secret: osp-secret
-  storageClass: ocs-external-storagecluster-ceph-rbd
+  storageClass: lvms-vg1
   dns:
     template:
       override:
@@ -88,7 +88,7 @@ spec:
       databaseInstance: openstack
       storage:
         storageRequest: 10G
-        storageClass: "ocs-external-storagecluster-ceph-rbd"
+        storageClass: "lvms-vg1"
       keystoneEndpoint: default
       glanceAPIs:
         default:

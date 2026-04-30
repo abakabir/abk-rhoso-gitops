@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: rhoso-stack-deployer
+  namespace: openshift-gitops
+spec:
+#  strategy:
+#    type: RollingUpdate # Déploie les clusters les uns après les autres
+  generators:
+    - clusterDecisionResource:
+        configMapRef: acm-placement
+        labelSelector:
+          matchLabels:
+            cluster.open-cluster-management.io/placement: rhoso-stack-deployer-placement
+          matchExpressions:
+            - key: name
+              operator: NotIn
+              values: [local-cluster] # Exclut le Hub
+        requeueAfterSeconds: 180
+  template:
+    metadata:
+      name: '{{name}}-rhoso-bundle'
+    spec:
+      project: rhoso-clusters
+      source:
+        repoURL: https://github.com/abakabir/abk-rhoso-gitops.git
+        targetRevision: HEAD
+        path: gitops/bundles/{{name}}
+      destination:
+        server: '{{server}}'
+        namespace: openshift-gitops
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+---          
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: rhoso-stack-deployer-placement
+  namespace: openshift-gitops
+spec:
+  clusterSets:
+    - gitops-configure
+

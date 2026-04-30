@@ -8,7 +8,7 @@ patches:
   - patch: |-
       - op: add
         path: /spec/storageClassName 
-        value: "ocs-external-storagecluster-ceph-rbd-immediate"
+        value: "lvms-vg1"
     target:
       kind: PersistentVolumeClaim 
       name: openstack-dataplane-ansible-log 

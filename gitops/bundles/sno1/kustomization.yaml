@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../base/  # Réutilise toute la stack standard
+
+patches:
+  - target:
+      kind: IPAddressPool
+      name: fp-group
+    patch: |-
+      - op: replace
+        path: /spec/addresses/0
+        value: 192.168.200.50-192.168.200.60 # IP spécifique à ce site
